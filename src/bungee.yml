@@ -1,0 +1,4 @@
+name: SimpleAntiVPN
+author: Luca
+main: de.luca.simpleantivpn.core.AntiVPN
+version: 1.0
