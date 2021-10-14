@@ -15,38 +15,27 @@ import net.md_5.bungee.event.EventHandler;
 
 public class AntiVPN extends Plugin {
 
-	public static Plugin plugin;
+	public Plugin plugin;
 
 	public static String antivpnbypasspermission;
 	
 	public static String antivpnkickmessage;
-	
+
 	public void onEnable() {
 		createConfigs();
 		plugin = this;
-		ProxyServer.getInstance().getPluginManager().registerListener(plugin, new Listener() {
-			@SuppressWarnings("deprecation")
-			@EventHandler
-			public void onJoin(PostLoginEvent event) {
-				if (!event.getPlayer().hasPermission(antivpnbypasspermission)) {
-					IPChecker.getInstance().start(() -> {
-						if (!IPChecker.getInstance().isipresidental(event.getPlayer().getAddress().getAddress().getHostAddress())) {
-							event.getPlayer().disconnect(TextComponent.fromLegacyText(antivpnkickmessage));
-						}
-					});
-				}
-			}
-		});
+		ProxyServer.getInstance().getPluginManager().registerListener(plugin, new LoginListener());
 	}
 	
 
-	public static Configuration config;
-	public static File file;
+	public Configuration config;
+	public File file;
 
-	public static void createConfigs() {
+	public void createConfigs() {
 		try {
-			file = new File("SimpleAntiVPN/Config.yml");
+			file = new File(ProxyServer.getInstance().getPluginsFolder().getPath(), "SimpleAntiVPN");
 			file.mkdirs();
+			file = new File(ProxyServer.getInstance().getPluginsFolder().getPath(), "SimpleAntiVPN/config.yml");
 			if (!file.exists()) {
 				file.createNewFile();
 				System.out.println("Created Config File");
@@ -56,7 +45,7 @@ public class AntiVPN extends Plugin {
 
 			antivpnbypasspermission = String.valueOf(addDefault(config, "settings.bypasspermission", "simpleantivpn.bypass"));
 
-			antivpnkickmessage = String.valueOf(addDefault(config, "settings.antivpnkickmessage", "You got kicked due to the use of a VPN or Proxy"));
+			antivpnkickmessage = String.valueOf(addDefault(config, "settings.antivpnkickmessage", "&cYou got kicked due to the use of a VPN or Proxy")).replaceAll("&", "§");
 
 
 			ConfigurationProvider.getProvider(YamlConfiguration.class).save(config, file);
@@ -66,7 +55,7 @@ public class AntiVPN extends Plugin {
 		}
 	}
 
-	public static Object addDefault(Configuration conf, String path, Object value) {
+	public Object addDefault(Configuration conf, String path, Object value) {
 		if (!conf.contains(path)) {
 			conf.set(path, value);
 			return value;
@@ -74,7 +63,7 @@ public class AntiVPN extends Plugin {
 		return conf.get(path);
 	}
 
-	public static void sleep(int i) {
+	public void sleep(int i) {
 		try {
 			Thread.sleep(i);
 		} catch (InterruptedException e) {
